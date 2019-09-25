@@ -742,8 +742,8 @@ F, FX, and FY are the values and partials of a linear function which minimizes Q
         lptr = self.lptr
 
         segments_array = np.empty((len(lptr),2),dtype=np.int)
-        segments_array[:,0] = lst[:] - 1
-        segments_array[:,1] = lst[lptr[:]-1] - 1
+        segments_array[:,0] = np.abs(lst[:]) - 1
+        segments_array[:,1] = np.abs(lst[lptr[:]-1]) - 1
 
         valid = np.where(segments_array[:,0] < segments_array[:,1])[0]
         segments = segments_array[valid,:]
