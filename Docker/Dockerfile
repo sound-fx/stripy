@@ -2,11 +2,12 @@
 #  Short docker file to distribute some notebooks
 #################################################
 
-ARG FROMIMG_ARG=underworldcode/py3-lavavu-notebook-bundle:0.9.4-debian
+ARG FROMIMG_ARG=underworldcode/py3-lavavu-notebook-bundle:latest
 FROM ${FROMIMG_ARG}
 
-##################################################
+################################################## 
 # Non standard as the files come from the packages
+##################################################
 
 USER root
 
@@ -15,24 +16,26 @@ RUN apt-get update -qq && \
     gettext && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN python3 -m pip install --no-cache-dir --upgrade \
+    jupyterhub \
+    pytest \
+    imageio 
+
+# Get the most recent litho1pt0 - there is a circular dependency here 
+# 
+
+RUN python3 -m pip install --no-cache-dir --upgrade --force-reinstall git+https://github.com/underworldcode/litho1pt0.git@master
+
 ### Stripy - Notebooks
 
 ENV MODULE_DIR="stripy-src"
 ADD --chown=jovyan:jovyan . / stripy-src/
 RUN   cd $MODULE_DIR && python3 -m pip install --no-cache-dir --no-deps --upgrade .
 
-
 # This should overwrite any existing Notebooks directory
 
 RUN ipython3 -c 'import stripy; stripy.documentation.install_documentation(path="Notebooks")'
-
-
-RUN python3 -m pip install --no-cache-dir --upgrade \
-    jupyterhub \
-    pytest \
-    imageio \
-    litho1pt0 \
-    lavavu==1.4.2
+RUN ipython3 -c 'import litho1pt0; litho1pt0.documentation.install_documentation(path="Notebooks")'
 
 # This file is too big to bundle with the pip installation
 

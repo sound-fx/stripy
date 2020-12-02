@@ -4,6 +4,7 @@ __pycache__
 *.so*
 *checkpoint.ipynb
 .ipynb_checkpoints
+.pytest_cache
 *.png
 
 .coverage
@@ -13,8 +14,12 @@ swpcom.mod
 build/*
 dist/*
 
+jupyterbook/_build
+
 litho1pt0-src/build/*
 litho1pt0-src/dist/*
+/build/
+/fixed-wheels/
 
 *.egg
 .eggs
@@ -33,3 +38,12 @@ stripy.egg-info/*
 litho1pt0-src/litho1pt0.egg-info/*
 litho1pt0-src/litho1pt0/Notebooks/litho1pt0/Data/ETOPO1_Ice_g_geotiff.tif
 litho1pt0-src/litho1pt0/Notebooks/litho1pt0/Data/ETOPO1_Ice_g_geotiff.tif.zip
+
+
+# Do we want these ?
+
+/.idea/
+/.vscode/
+/.spyproject/
+
+fixed_wheels/stripy-1.2.2-cp37-cp37m-macosx_10_9_x86_64.whl

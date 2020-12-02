@@ -7346,3 +7346,85 @@ C
       IER = 0
       RETURN
       END
+      SUBROUTINE interp_linear(n,ns,xs,ys,x,y,zdata,
+     .                         lst,lptr,lend,odata,edata,ierr)
+
+      INTEGER n, ns, ierr
+      INTEGER lst(6*(n-2)), lptr(6*(n-2)), lend(n)
+      REAL xs(ns), ys(ns), odata(ns)
+      REAL zdata(n), x(n), y(n), z(n)
+      REAL pzx, pzy
+      INTEGER i, ierr1, ist, edata(ns), ncc, lcc
+
+      ncc = 0
+      ist = 1
+      ierr = 0
+
+      DO i=1,ns
+         CALL intrc0(xs(i),ys(i),ncc,lcc,n,x,y,zdata,lst,lptr,lend,
+     .                ist,odata(i),ierr1)
+
+         edata(i) = ierr1
+
+         IF (ierr1 .lt. 0) THEN
+           ierr = ierr + ierr1
+         ENDIF
+      ENDDO
+      RETURN
+      END
+      SUBROUTINE interp_cubic(n,ns,xs,ys,x,y,zdata,lst,
+     .               lptr,lend,iflgs,sigma,iflgg,grad,odata,edata,ierr)
+
+      INTEGER n, ns, ierr
+      INTEGER lst(6*(n-2)), lptr(6*(n-2)), lend(n)
+      REAL xs(ns), ys(ns), odata(ns)
+      REAL zdata(n), x(n), y(n), z(n), sigma(6*(n-2)), grad(2,n)
+      REAL pzx, pzy
+      INTEGER i, ierr1, ist, iflgs, edata(ns), ncc, lcc
+      LOGICAL iflgg
+
+      ncc = 0
+      ist = 1
+      ierr = 0
+
+      DO i=1,ns
+         CALL intrc1(xs(i),ys(i),ncc,lcc,n,x,y,zdata,lst,lptr,lend,
+     .                iflgs,sigma,grad,iflgg,ist,odata(i),pzx,pzy,ierr1)
+
+         edata(i) = ierr1
+
+         IF (ierr1 .lt. 0) THEN
+           ierr = ierr + ierr1
+         ENDIF
+      ENDDO
+      RETURN
+      END
+C
+C Routines that benefit from a Fortran loop
+C
+      SUBROUTINE GRADLS (NK,K,NCC,LCC,N,X,Y,Z,LIST,LPTR,
+     .                   LEND,DXS,DYS,IER)
+      INTEGER NK, I, NCC, LCC(*), N, LIST(*), LPTR(*),
+     .        LEND(N), IER, K(NK)
+      REAL    X(N), Y(N), Z(N), DXS(NK), DYS(NK)
+C
+      DO I = 1, NK
+        CALL GRADL(K(I),NCC,LCC,N,X,Y,Z,LIST,LPTR,
+     .             LEND,DXS(I),DYS(I),IER)
+      ENDDO
+      RETURN
+      END
+C
+      SUBROUTINE GRADCS (NK,K,NCC,LCC,N,X,Y,Z,LIST,LPTR,
+     .                  LEND,DXS,DYS,DXXS,DXYS,DYYS,IER)
+      INTEGER NK, NCC, LCC(*), N, LIST(*), LPTR(*),
+     .        LEND(N), IER, K(NK)
+      REAL    X(N), Y(N), Z(N)
+      REAL    DXS(NK), DYS(NK), DXXS(NK), DXYS(NK), DYYS(NK)
+C
+      DO I = 1, NK
+        CALL GRADC(K(I),NCC,LCC,N,X,Y,Z,LIST,LPTR,LEND,
+     .             DXS(I),DYS(I),DXXS(I),DXYS(I),DYYS(I),IER)
+      ENDDO
+      RETURN
+      END

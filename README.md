@@ -2,7 +2,11 @@
 
 [![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/underworldcode/stripy.svg)](https://hub.docker.com/r/underworldcode/stripy)
 [![PyPI](https://img.shields.io/pypi/v/stripy.svg)](https://pypi.org/project/stripy/)
-[![Build Status (master)](https://travis-ci.org/underworldcode/stripy.svg?branch=master)](https://travis-ci.org/underworldcode/stripy)
+
+[![pip builds](https://github.com/underworldcode/stripy/workflows/pip%20builds/badge.svg)](https://github.com/underworldcode/stripy/actions?query=workflow%3A%22pip+builds%22)
+
+![Conda Deployment](https://github.com/underworldcode/stripy/workflows/Conda%20Deployment/badge.svg)
+
 
 A Python interface to TRIPACK and STRIPACK Fortran code for (constrained) triangulation in Cartesian coordinates and on a sphere. Stripy is an object-oriented package and includes routines from SRFPACK and SSRFPACK for interpolation (nearest neighbor, linear and hermite cubic) and to evaluate derivatives (Renka 1996a,b and 1997a,b).
 
@@ -13,12 +17,35 @@ A Python interface to TRIPACK and STRIPACK Fortran code for (constrained) triang
 
 _Sample images created with `stripy` illustrating the meshing capability: ocean age data can be triangulated on the sphere with no need for points on land. Once `stripy` ingests your data points, you can sample another dataset to your grid (bathymetry on the right), smooth, find the derivatives of your data, or interpolate to another set of points._
 
+## Documentation
+
+There are two matching sets of `stripy` notebooks - one set for [Cartesian Triangulations](#Cartesian) and one for [Spherical Triangulations](#Spherical). For most geographical applications, the spherical triangulations are the natural choice as they expect longitude and latitude coordinates (admittedly in radians).  There are some worked examples
+which use the companion package litho1pt0
+
+### Stable code 
+
+  - Documentation / Notebooks [https://underworldcode.github.io/stripy/2.0.5b2](https://underworldcode.github.io/stripy/2.0.5b2)
+  - API documentation [https://underworldcode.github.io/stripy/2.0.5b2_api](https://underworldcode.github.io/stripy/2.0.5b2_api)
+
+### Bleeding edge code 
+
+  - Documentation / Notebooks [https://underworldcode.github.io/stripy/2.0.5b2](https://underworldcode.github.io/stripy/2.0.5b2)
+  - API documentation [https://underworldcode.github.io/stripy/2.0.5b2_api](https://underworldcode.github.io/stripy/2.0.5b2_api)
+
+For previous versions, see the [changelog](Changelog.md)
+
+### Installation & Running in the cloud
 
 #### Binder
 
-Launch the demonstration at [links.underworldcode.org/stripy-live (mybinder.org)](http://links.underworldcode.org/stripy-live)
+Launch the demonstration <!-- at [links.underworldcode.org/stripy-live (mybinder.org)](http://links.underworldcode.org/stripy-live) -->
 
 [![Binder](https://mybinder.org/badge_logo.svg)](http://links.underworldcode.org/stripy-live)
+
+(This is the development branch)
+
+[![Binder-dev](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/underworldcode/stripy/dev?filepath=Notebooks%2F0-StartHere.ipynb)
+
 
 #### Citation
 
@@ -39,23 +66,27 @@ Note: the Cartesian and Spherical notebooks can be obtained / installed from `st
 
 ### Cartesian
 
-  - [Ex1-Cartesian-Triangulations.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex1-Cartesian-Triangulations.ipynb)
-  - [Ex2-CartesianGrids.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex2-CartesianGrids.ipynb)
-  - [Ex3-Interpolation.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex3-Interpolation.ipynb)
-  - [Ex4-Gradients.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex4-Gradients.ipynb)
-  - [Ex5-Smoothing.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex5-Smoothing.ipynb)
-  - [Ex6-Scattered-Data.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex6-Scattered-Data.ipynb)
-  - [Ex7-Refinement-of-Triangulations.ipynb](stripy-src/stripy/Notebooks/CartesianTriangulations/Ex7-Refinement-of-Triangulations.ipynb)
+  - [Ex1-Cartesian-Triangulations.ipynb](stripy/Notebooks/CartesianTriangulations/Ex1-Cartesian-Triangulations.ipynb)
+  - [Ex2-CartesianGrids.ipynb](stripy/Notebooks/CartesianTriangulations/Ex2-CartesianGrids.ipynb)
+  - [Ex3-Interpolation.ipynb](stripy/Notebooks/CartesianTriangulations/Ex3-Interpolation.ipynb)
+  - [Ex4-Gradients.ipynb](stripy/Notebooks/CartesianTriangulations/Ex4-Gradients.ipynb)
+  - [Ex5-Smoothing.ipynb](stripy/Notebooks/CartesianTriangulations/Ex5-Smoothing.ipynb)
+  - [Ex6-Scattered-Data.ipynb](stripy/Notebooks/CartesianTriangulations/Ex6-Scattered-Data.ipynb)
+  - [Ex7-Refinement-of-Triangulations.ipynb](stripy/Notebooks/CartesianTriangulations/Ex7-Refinement-of-Triangulations.ipynb)
+  - [Ex8-Spline-Tension.ipynb](stripy/Notebooks/CartesianTriangulations/Ex8-Spline-Tension.ipynb)
+  - [Ex9-Voronoi-Diagram.ipynb](stripy/Notebooks/CartesianTriangulations/Ex9-Voronoi-Diagram.ipynb)
 
 ### Spherical
 
-  - [Ex1-Spherical-Triangulations.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex1-Spherical-Triangulations.ipynb)
-  - [Ex2-SphericalGrids.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex2-SphericalGrids.ipynb)
-  - [Ex3-Interpolation.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex3-Interpolation.ipynb)
-  - [Ex4-Gradients.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex4-Gradients.ipynb)
-  - [Ex5-Smoothing.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex5-Smoothing.ipynb)
-  - [Ex6-Scattered-Data.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex6-Scattered-Data.ipynb)
-  - [Ex7-Refinement-of-Triangulations.ipynb](stripy-src/stripy/Notebooks/SphericalTriangulations/Ex7-Refinement-of-Triangulations.ipynb)
+  - [Ex1-Spherical-Triangulations.ipynb](stripy/Notebooks/SphericalTriangulations/Ex1-Spherical-Triangulations.ipynb)
+  - [Ex2-SphericalGrids.ipynb](stripy/Notebooks/SphericalTriangulations/Ex2-SphericalGrids.ipynb)
+  - [Ex3-Interpolation.ipynb](stripy/Notebooks/SphericalTriangulations/Ex3-Interpolation.ipynb)
+  - [Ex4-Gradients.ipynb](stripy/Notebooks/SphericalTriangulations/Ex4-Gradients.ipynb)
+  - [Ex5-Smoothing.ipynb](stripy/Notebooks/SphericalTriangulations/Ex5-Smoothing.ipynb)
+  - [Ex6-Scattered-Data.ipynb](stripy/Notebooks/SphericalTriangulations/Ex6-Scattered-Data.ipynb)
+  - [Ex7-Refinement-of-Triangulations.ipynb](stripy/Notebooks/SphericalTriangulations/Ex7-Refinement-of-Triangulations.ipynb)
+  - [Ex8-Spline-Tension.ipynb](stripy/Notebooks/SphericalTriangulations/Ex8-Spline-Tension.ipynb)
+  - [Ex9-Voronoi-Diagram.ipynb](stripy/Notebooks/SphericalTriangulations/Ex9-Voronoi-Diagram.ipynb)
 
 
 ### Examples
@@ -70,11 +101,11 @@ package itself:
 The first three notebooks are an introduction to `litho1pt0` that does not explicitly mention `stripy` but
 the next two worked examples show how to search, interpolate and plot with the help of `stripy` routines.
 
-  - [Ex1-Litho1Layers.ipynb](litho1pt0-src/litho1pt0/Notebooks/litho1pt0/Ex1-Litho1Layers.ipynb)
-  - [Ex2-Litho1Properties.ipynb](litho1pt0-src/litho1pt0/Notebooks/litho1pt0/Ex2-Litho1Properties.ipynb)
-  - [Ex3-CrustalRegionalisation.ipynb](litho1pt0-src/litho1pt0/Notebooks/litho1pt0/Ex3-CrustalRegionalisation.ipynb)
-  - [WorkEx1-CratonAverageProperties.ipynb](litho1pt0-src/litho1pt0/Notebooks/litho1pt0/WorkEx1-CratonAverageProperties.ipynb)
-  - [WorkEx2-OceanDepthAge.ipynb](litho1pt0-src/litho1pt0/Notebooks/litho1pt0/WorkEx2-OceanDepthAge.ipynb)
+  - [Ex1-Litho1Layers.ipynb](https://github.com/underworldcode/litho1pt0/blob/master/litho1pt0/Notebooks/litho1pt0/Ex1-Litho1Layers.ipynb)
+  - [Ex2-Litho1Properties.ipynb](https://github.com/underworldcode/litho1pt0/blob/master/litho1pt0/Notebooks/litho1pt0/Ex2-Litho1Properties.ipynb)
+  - [Ex3-CrustalRegionalisation.ipynb](https://github.com/underworldcode/litho1pt0/blob/master/litho1pt0/Notebooks/litho1pt0/Ex3-CrustalRegionalisation.ipynb)
+  - [WorkEx1-CratonAverageProperties.ipynb](https://github.com/underworldcode/litho1pt0/blob/master/litho1pt0/Notebooks/litho1pt0/WorkEx1-CratonAverageProperties.ipynb)
+  - [WorkEx2-OceanDepthAge.ipynb](https://github.com/underworldcode/litho1pt0/blob/master/litho1pt0/Notebooks/litho1pt0/WorkEx2-OceanDepthAge.ipynb)
 
 
 ## Installation
@@ -199,10 +230,6 @@ git checkout https://github.com/underworldcode/stripy.git
 cd stripy
 pytest -v
 ```
-
-### API Documentation
-
-The API for all functions and classes in `stripy` can be accessed from [http://www.underworldcode.org/stripy/](http://www.underworldcode.org/stripy/).
 
 
 ## References

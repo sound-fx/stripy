@@ -87,7 +87,7 @@ class square_mesh(_cartesian.Triangulation):
         x = x.ravel()
         y = y.ravel()
 
-        nsamples = interior_mask.sum()
+        nsamples = np.count_nonzero(interior_mask)
         xscale = random_scale*spacingX
         yscale = random_scale*spacingY
 
@@ -95,20 +95,24 @@ class square_mesh(_cartesian.Triangulation):
         y[interior_mask] += yscale * (0.5 - np.random.rand(nsamples))
 
         xy = np.column_stack([x, y])
+        xy_mask = xy[interior_mask]
 
-        n2 = x.size//2
+        # Randomise the point order for triangulation efficiency
+        np.random.shuffle(xy_mask)
+        xy[interior_mask] = xy_mask
 
         # ensure first 3 points are not collinear
-        # xy[0], xy[-1] = xy[-1].copy(), xy[0].copy()
-        # xy[2], xy[n2] = xy[n2].copy(), xy[2].copy()
-
-        ## Randomise the point order for triangulation efficiency
-        np.random.shuffle(xy)
+        xy[1], xy[-1] = xy[-1].copy(), xy[1].copy()
 
         super(square_mesh, self).__init__(xy[:,0], xy[:,1], permute=False, tree=tree)
 
         for r in range(0, refinement_levels):
             X, Y = self.uniformly_refine_triangulation(faces=False, trisect=False)
+
+            # ensure first 3 points are not collinear
+            X[1], X[-1] = X[-1].copy(), X[1].copy()
+            Y[1], Y[-1] = Y[-1].copy(), Y[1].copy()
+
             self._update_triangulation(X, Y)
 
         return
@@ -118,6 +122,8 @@ class elliptical_mesh(_cartesian.Triangulation):
     """
     An elliptical mesh where points are successively populated at an
     increasing radius from the midpoint of the extent.
+
+    Caution in parallel and for reproducibility - random noise in point locations !
     """
     def __init__(self, extent, spacingX, spacingY, random_scale=0.0, refinement_levels=0, tree=False):
 
@@ -172,6 +178,113 @@ class elliptical_mesh(_cartesian.Triangulation):
         return
 
 
+class elliptical_equispaced_mesh(_cartesian.Triangulation):
+    """
+    An elliptical mesh where points are successively populated at an
+    increasing radius from the midpoint of the extent.
+
+    This is a parallel-safe mesh object.
+    """
+    def __init__(self, axisX, axisY, spacing, refinement_levels=0, tree=False, remove_artifacts=True):
+
+        x, y, mask = elliptical_base_mesh_points(axisX, axisY, spacing)
+
+        super(elliptical_equispaced_mesh, self).__init__(x, y, permute=False, tree=tree)
+
+        for r in range(0, refinement_levels):
+            X, Y = self.uniformly_refine_triangulation(faces=False, trisect=False)
+            self._update_triangulation(X, Y)
+
+        return
+
+
+def elliptical_base_mesh_points(axisX, axisY, spacing, remove_artifacts=True):
+    """
+    Generate well-spaced points in an ellipse - assumes the ellipse is axis-aligned and centred on the origin
+    """
+
+    import numpy as np 
+    import scipy 
+    from scipy import optimize, special
+
+    b = axisX
+    a = axisY
+
+    def equal_angles_in_ellipse(arc_length, a, b):
+        """ This is a routine that returns equal spaced points around the perimeter of an ellipse
+        """
+    
+        if a == b: 
+            tot_size = 2.0 * np.pi * a 
+            num = tot_size // arc_length
+            angles = 2 * np.pi * np.arange(num) / num
+            
+            return a * np.cos(angles), a * np.sin(angles)
+            
+        if (a < b):
+            e = (1.0 - a ** 2.0 / b ** 2.0) ** 0.5
+        else:
+            e = (1.0 - b ** 2.0 / a ** 2.0) ** 0.5       
+            
+        
+        # approximate perimeter of this ellipse    
+        h = (a-b)**2 / (a+b)**2
+        length = np.pi * (a+b) * ( 1.0 + 3.0 * h / (10.0 + np.sqrt(4.0-3*h)))    
+        num = length // arc_length
+            
+        # This is normalised 
+        tot_size = scipy.special.ellipeinc(2.0 * np.pi, e)
+        arc_size = tot_size / num
+        
+        # starting points for search
+        angles = 2 * np.pi * np.arange(num) / num
+    
+        arcs = np.arange(num) * arc_size 
+        res = scipy.optimize.root(
+            lambda x: (scipy.special.ellipeinc(x, e) - arcs), angles)
+        
+        angles = res.x 
+        
+        if a < b: 
+            return b * np.sin(angles), a * np.cos(angles)
+        else:
+            return b * np.cos(angles), a * np.sin(angles)
+
+
+    pointsx, pointsy = equal_angles_in_ellipse( spacing, a, b)
+    bmask = np.full_like(pointsx, 0, dtype=np.bool)
+    a -= spacing 
+    b -= spacing 
+
+    while (a >= 0.0 and b >= 0.0):
+        points = equal_angles_in_ellipse( spacing, a, b)
+        pointsx = np.append(pointsx,points[0])
+        pointsy = np.append(pointsy,points[1])
+        bmask   = np.append(bmask, np.full_like(points[0], 1, dtype=np.bool))
+        a -= spacing 
+        b -= spacing 
+
+
+    # The mesh can have some artefacts close to the longer axis so we drop a small fraction of points in that case
+
+    from ._fortran import ntriw
+    # from . import _srfpack
+
+
+    tri = _cartesian.Triangulation(pointsx, pointsy)
+    area, weight = ntriw(pointsx, pointsy, tri.simplices.T+1)
+    tiny = np.logical_and(bmask, area < np.mean(area)*0.2)
+
+    return pointsx[~tiny], pointsy[~tiny], bmask[~tiny]
+
+
+
+
+
+
+
+
+
 class random_mesh(_cartesian.Triangulation):
     """
     A mesh of random points. Take care if you use this is parallel
@@ -208,62 +321,3 @@ class random_mesh(_cartesian.Triangulation):
         super(random_mesh, self).__init__(x, y, permute=True, tree=tree)
 
         return
-
-
-
-## The following are cartesian meshes warped into 3D
-## such that the original x,y directions provide a natural means
-## of navigating the surface.
-##
-## These are useful for wrapping textures on surfaces
-##
-## Sphere (with x/y -> lon/lat) and singular at the poles
-## which cannot be meshed with sTriangulation
-##
-## Currently: XX,YY,ZZ are the R3 coords of the points
-##            SS, TT are the normalised coordinates on the manifold
-##            x,y are the original point locations
-##            areas etc all refer to the undistorted mesh ( ... )
-
-
-class warped_xy_mesh_sphere(_cartesian.Triangulation):
-    """
-    A lon/lat mesh on the sphere which, due to the poles, cannot be
-    meshed directly with sTriangulation routines.
-
-    This is a hybrid mesh which is calculated in a flat projection
-    that corresponds to cartopy.crs.PlateCarree() but has associated
-    (x,y,z) coordinates.
-
-    The primary use case is visualisation with texture maps where the
-    (s,t) coordinate system that is required on the surface has to map
-    correctly for an (x,y) array of pixels.
-    """
-
-    def __init__(self, res_lon, res_lat, epsilon=0.001):
-
-        import numpy as np
-
-        lon = np.linspace(0.0, 2.0*np.pi, res_lon, endpoint=True)
-        lat = np.linspace(epsilon,  np.pi-epsilon,  res_lat, endpoint=True)
-        lons, lats = np.meshgrid(lon, lat)
-        lons = lons.reshape(-1)
-        lats = lats.reshape(-1)
-
-        XX = np.cos(lons) * np.sin(lats)
-        YY = np.sin(lons) * np.sin(lats)
-        ZZ = np.cos(lats)
-
-        SS = lons / (2.0*np.pi)
-        TT = lats / np.pi
-
-        super(warped_xy_mesh_sphere, self).__init__(x=SS, y=TT, permute=True, tree=False)
-
-        self.XX = XX
-        self.YY = YY
-        self.ZZ = ZZ
-
-        self.SS = SS
-        self.TT = TT
-
-        ## how should we re-define things like self.areas, self.tree ??
